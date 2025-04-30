@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatPDF Online</title>
+    <style>
+        :root {
+            --primary-color: #7c3aed;
+            --text-color: #333;
+            --bg-color: #fff;
+            --card-bg: #f9fafb;
+            --border-color: #e5e7eb;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-theme {
+            --primary-color: #8b5cf6;
+            --text-color: #f3f4f6;
+            --bg-color: #1f2937;
+            --card-bg: #111827;
+            --border-color: #374151;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .nav {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .nav-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text-color);
+        }
+
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            background-color: #f3f4f6;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            color: #333;
+        }
+
+        body.dark-theme .language-selector {
+            background-color: #374151;
+            color: #f3f4f6;
+        }
+
+        /* Main Content Styles */
+        main {
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: calc(100vh - 80px);
+        }
+
+        .title-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .pdf-icon {
+            width: 50px;
+            height: 50px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #6b7280;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        body.dark-theme .subtitle {
+            color: #9ca3af;
+        }
+
+        /* Mode Selector */
+        .mode-selector {
+            display: flex;
+            background-color: #f3f4f6;
+            border-radius: 2rem;
+            padding: 0.25rem;
+            margin-bottom: 3rem;
+        }
+
+        body.dark-theme .mode-selector {
+            background-color: #374151;
+        }
+
+        .mode-option {
+            padding: 0.5rem 1.25rem;
+            cursor: pointer;
+            border-radius: 1.5rem;
+        }
+
+        .mode-option.active {
+            background-color: white;
+            box-shadow: 0 1px 3px var(--shadow-color);
+        }
+
+        body.dark-theme .mode-option.active {
+            background-color: #1f2937;
+        }
+
+        .turbo-icon {
+            color: var(--primary-color);
+        }
+
+        /* Upload Section */
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .pdf-preview {
+            background-color: var(--card-bg);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+            width: 120px;
+            height: 120px;
+            position: relative;
+        }
+
+        .chat-icon {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: var(--bg-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 2rem;
+            padding: 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .upload-btn:hover {
+            background-color: #6d28d9;
+        }
+
+        .upload-link {
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+        }
+
+        .file-info {
+            font-size: 0.875rem;
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        body.dark-theme .file-info {
+            color: #9ca3af;
+        }
+
+        /* Toggle Switches */
+        .features-toggles {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #f3f4f6;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+        }
+
+        body.dark-theme .toggle-container {
+            background-color: #374151;
+        }
+
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 24px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(16px);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--primary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            z-index: 100;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Drag and Drop */
+        .drag-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 0.5rem;
+            width: 100%;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .drag-area.active {
+            border-color: var(--primary-color);
+            background-color: rgba(124, 58, 237, 0.05);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsiveness */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            .features-toggles {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <div class="logo">M</div>
+            <div class="logo-text">Monica</div>
+        </div>
+        <nav class="nav">
+            <div class="language-selector">
+                English
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                </svg>
+            </div>
+            <a href="#" class="nav-item">Features</a>
+            <a href="#" class="nav-item">Tutorial</a>
+            <a href="#" class="nav-item">Pricing</a>
+            <a href="#" class="nav-item">Login</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="title-container">
+            <h1 class="title">
+                <svg class="pdf-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" fill="#f56565">
+                    <path d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z"/>
+                </svg>
+                ChatPDF Online
+            </h1>
+            <p class="subtitle">Use the AI capabilities provided by Monica to help you read better</p>
+        </div>
+
+        <div class="mode-selector">
+            <div class="mode-option active">Regular Mode</div>
+            <div class="mode-option">
+                <span class="turbo-icon">⚡</span> Turbo Mode
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <div class="pdf-preview">
+                <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="#f56565" viewBox="0 0 384 512">
+                    <path d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z"/>
+                </svg>
+                <div class="chat-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M16 8c0 3.866-3.582 7-8 7a9.06 9.06 0 0 1-2.347-.306c-.584.296-1.925.864-4.181 1.234-.2.032-.352-.176-.273-.362.354-.836.674-1.95.77-2.966C.744 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7zM5 8a1 1 0 1 0-2 0 1 1 0 0 0 2 0zm4 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0zm3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="drag-area" id="dragArea">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 3.5a.5.5 0 0 1 .5.5v6.793l2.146-2.147a.5.5 0 1 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 10.293V4a.5.5 0 0 1 .5-.5z"/>
+                    <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H2z"/>
+                </svg>
+                <p>Drag and drop your PDF here or click to upload</p>
+            </div>
+
+            <input type="file" id="file-input" class="file-input" accept=".pdf">
+            <button class="upload-btn" id="upload-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 3.5a.5.5 0 0 1 .5.5v6.793l2.146-2.147a.5.5 0 1 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 .708-.708L7.5 10.293V4a.5.5 0 0 1 .5-.5z"/>
+                    <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H2z"/>
+                </svg>
+                Click or drag here to upload
+            </button>
+
+            <div class="upload-link" id="upload-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z"/>
+                    <path d="M5.712 6.96l.167-.167a1.99 1.99 0 0 1 .896-.518 1.99 1.99 0 0 1 .518-.896l.167-.167A3.004 3.004 0 0 0 6 5.499c-.22.46-.316.963-.288 1.46z"/>
+                    <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z"/>
+                </svg>
+                Upload via link
+            </div>
+
+            <div class="file-info">
+                File types supported: PDF | Max file size: 50MB<br>
+                Max Token: 100k (Approximately 70,000 words or characters)
+            </div>
+
+            <div class="features-toggles">
+                <div class="toggle-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="var(--primary-color)" viewBox="0 0 16 16">
+                        <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/>
+                        <path d="M1 5.5a.5.5 0 1 1 1 0 .5.5 0 0 1-1 0zm1 3a.5.5 0 1 1 0-1 .5.5 0 0 1 0 1zm-1 3a.5.5 0 1 1 1 0 .5.5 0 0 1-1 0z"/>
+                        <path d="M9.5 12a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                    </svg>
+                    GPT 4o
+                    <label class="toggle">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M15.985 8.5H8.207l-5.5 5.5a8 8 0 0 0 13.277-5.5zM2 13.292A8 8 0 0 1 7.5.015v7.778l-5.5 5.5zM8.5.015V7.5h7.485A8.001 8.001 0 0 0 8.5.015z"/>
+                    </svg>
+                    Mind Map
+                    <label class="toggle">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545zm1.634-.736L5.5 3.956h-.049l-.679 2.022H6.18z"/>
+                        <path d="M0 2a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v3h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-3H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2zm7.138 9.995c.193.301.402.583.63.846-.748.575-1.673 1.001-2.768 1.292.178.217.451.635.555.867 1.125-.359 2.08-.844 2.886-1.494.777.665 1.739 1.165 2.93 1.472.133-.254.414-.673.629-.89-1.125-.253-2.057-.694-2.82-1.284.681-.747 1.222-1.651 1.621-2.757H14V8h-3v1.047h.765c-.318.844-.74 1.546-1.272 2.13a6.066 6.066 0 0 1-.415-.492 1.988 1.988 0 0 1-.94.31z"/>
+                    </svg>
+                    Translate PDF
+                    <label class="toggle">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>Processing your PDF...</p>
+            </div>
+        </div>
+    </main>
+
+    <div class="theme-toggle" id="theme-toggle">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" id="theme-icon">
+            <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+        </svg>
+    </div>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            
+            if (document.body.classList.contains('dark-theme')) {
+                themeIcon.innerHTML = '<path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>';
+            } else {
+                themeIcon.innerHTML = '<path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>';
+            }
+        });
+        
+        // Mode Selector
+        const modeOptions = document.querySelectorAll('.mode-option');
+        modeOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                modeOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+            });
+        });
+        
+        // File Upload
+        const fileInput = document.getElementById('file-input');
+        const uploadBtn = document.getElementById('upload-btn');
+        const dragArea = document.getElementById('dragArea');
+        const loadingElement = document.getElementById('loading');
+        
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        dragArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach
